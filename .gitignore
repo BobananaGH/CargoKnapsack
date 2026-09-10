@@ -1,0 +1,71 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# IDE
+# =========================
+
+.vscode/
+.idea/
+
+# =========================
+# Environment variables
+# =========================
+
+.env
+.env.*
+
+# Keep example env files if you add one later
+!.env.example
+
+# =========================
+# Testing / Coverage
+# =========================
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# =========================
+# Build / Distribution
+# =========================
+
+build/
+dist/
+*.egg-info/
+
+# =========================
+# OS
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Logs
+# =========================
+
+*.log
+
+# =========================
+# Project generated files
+# =========================
+
+# Don't ignore sample datasets
+# data/
+
+#
