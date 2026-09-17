@@ -1,0 +1,26 @@
+{
+  "capacity": 200,
+  "gamma": 4,
+  "cargo": [
+    { "name": "Cargo 1", "weight": 12, "max_weight": 15, "profit": 45 },
+    { "name": "Cargo 2", "weight": 18, "max_weight": 24, "profit": 70 },
+    { "name": "Cargo 3", "weight": 25, "max_weight": 30, "profit": 90 },
+    { "name": "Cargo 4", "weight": 10, "max_weight": 13, "profit": 35 },
+    { "name": "Cargo 5", "weight": 30, "max_weight": 38, "profit": 120 },
+    { "name": "Cargo 6", "weight": 22, "max_weight": 27, "profit": 80 },
+    { "name": "Cargo 7", "weight": 15, "max_weight": 19, "profit": 55 },
+    { "name": "Cargo 8", "weight": 28, "max_weight": 34, "profit": 105 },
+    { "name": "Cargo 9", "weight": 35, "max_weight": 43, "profit": 140 },
+    { "name": "Cargo 10", "weight": 16, "max_weight": 20, "profit": 60 },
+    { "name": "Cargo 11", "weight": 20, "max_weight": 26, "profit": 75 },
+    { "name": "Cargo 12", "weight": 14, "max_weight": 17, "profit": 50 },
+    { "name": "Cargo 13", "weight": 32, "max_weight": 39, "profit": 115 },
+    { "name": "Cargo 14", "weight": 24, "max_weight": 29, "profit": 85 },
+    { "name": "Cargo 15", "weight": 11, "max_weight": 14, "profit": 40 },
+    { "name": "Cargo 16", "weight": 27, "max_weight": 33, "profit": 100 },
+    { "name": "Cargo 17", "weight": 19, "max_weight": 23, "profit": 68 },
+    { "name": "Cargo 18", "weight": 31, "max_weight": 36, "profit": 110 },
+    { "name": "Cargo 19", "weight": 13, "max_weight": 16, "profit": 42 },
+    { "name": "Cargo 20", "weight": 26, "max_weight": 32, "profit": 95 }
+  ]
+}

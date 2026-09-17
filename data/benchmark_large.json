@@ -1,0 +1,906 @@
+{
+    "capacity": 1500,
+    "gamma": 20,
+    "cargo": [
+        {
+            "name": "Cargo 1",
+            "weight": 50,
+            "max_weight": 53,
+            "profit": 36
+        },
+        {
+            "name": "Cargo 2",
+            "weight": 27,
+            "max_weight": 32,
+            "profit": 87
+        },
+        {
+            "name": "Cargo 3",
+            "weight": 18,
+            "max_weight": 21,
+            "profit": 169
+        },
+        {
+            "name": "Cargo 4",
+            "weight": 15,
+            "max_weight": 26,
+            "profit": 138
+        },
+        {
+            "name": "Cargo 5",
+            "weight": 12,
+            "max_weight": 14,
+            "profit": 53
+        },
+        {
+            "name": "Cargo 6",
+            "weight": 23,
+            "max_weight": 28,
+            "profit": 159
+        },
+        {
+            "name": "Cargo 7",
+            "weight": 48,
+            "max_weight": 50,
+            "profit": 173
+        },
+        {
+            "name": "Cargo 8",
+            "weight": 22,
+            "max_weight": 34,
+            "profit": 169
+        },
+        {
+            "name": "Cargo 9",
+            "weight": 36,
+            "max_weight": 41,
+            "profit": 144
+        },
+        {
+            "name": "Cargo 10",
+            "weight": 47,
+            "max_weight": 53,
+            "profit": 31
+        },
+        {
+            "name": "Cargo 11",
+            "weight": 20,
+            "max_weight": 28,
+            "profit": 117
+        },
+        {
+            "name": "Cargo 12",
+            "weight": 27,
+            "max_weight": 31,
+            "profit": 85
+        },
+        {
+            "name": "Cargo 13",
+            "weight": 31,
+            "max_weight": 34,
+            "profit": 53
+        },
+        {
+            "name": "Cargo 14",
+            "weight": 34,
+            "max_weight": 37,
+            "profit": 121
+        },
+        {
+            "name": "Cargo 15",
+            "weight": 32,
+            "max_weight": 43,
+            "profit": 97
+        },
+        {
+            "name": "Cargo 16",
+            "weight": 12,
+            "max_weight": 21,
+            "profit": 167
+        },
+        {
+            "name": "Cargo 17",
+            "weight": 17,
+            "max_weight": 25,
+            "profit": 50
+        },
+        {
+            "name": "Cargo 18",
+            "weight": 45,
+            "max_weight": 51,
+            "profit": 190
+        },
+        {
+            "name": "Cargo 19",
+            "weight": 49,
+            "max_weight": 56,
+            "profit": 177
+        },
+        {
+            "name": "Cargo 20",
+            "weight": 22,
+            "max_weight": 25,
+            "profit": 41
+        },
+        {
+            "name": "Cargo 21",
+            "weight": 24,
+            "max_weight": 30,
+            "profit": 50
+        },
+        {
+            "name": "Cargo 22",
+            "weight": 24,
+            "max_weight": 27,
+            "profit": 127
+        },
+        {
+            "name": "Cargo 23",
+            "weight": 27,
+            "max_weight": 36,
+            "profit": 192
+        },
+        {
+            "name": "Cargo 24",
+            "weight": 33,
+            "max_weight": 37,
+            "profit": 124
+        },
+        {
+            "name": "Cargo 25",
+            "weight": 32,
+            "max_weight": 37,
+            "profit": 98
+        },
+        {
+            "name": "Cargo 26",
+            "weight": 14,
+            "max_weight": 25,
+            "profit": 192
+        },
+        {
+            "name": "Cargo 27",
+            "weight": 20,
+            "max_weight": 30,
+            "profit": 92
+        },
+        {
+            "name": "Cargo 28",
+            "weight": 20,
+            "max_weight": 29,
+            "profit": 127
+        },
+        {
+            "name": "Cargo 29",
+            "weight": 27,
+            "max_weight": 39,
+            "profit": 172
+        },
+        {
+            "name": "Cargo 30",
+            "weight": 24,
+            "max_weight": 36,
+            "profit": 113
+        },
+        {
+            "name": "Cargo 31",
+            "weight": 13,
+            "max_weight": 18,
+            "profit": 38
+        },
+        {
+            "name": "Cargo 32",
+            "weight": 30,
+            "max_weight": 38,
+            "profit": 98
+        },
+        {
+            "name": "Cargo 33",
+            "weight": 14,
+            "max_weight": 19,
+            "profit": 175
+        },
+        {
+            "name": "Cargo 34",
+            "weight": 30,
+            "max_weight": 35,
+            "profit": 197
+        },
+        {
+            "name": "Cargo 35",
+            "weight": 41,
+            "max_weight": 49,
+            "profit": 194
+        },
+        {
+            "name": "Cargo 36",
+            "weight": 39,
+            "max_weight": 43,
+            "profit": 97
+        },
+        {
+            "name": "Cargo 37",
+            "weight": 18,
+            "max_weight": 23,
+            "profit": 173
+        },
+        {
+            "name": "Cargo 38",
+            "weight": 44,
+            "max_weight": 50,
+            "profit": 179
+        },
+        {
+            "name": "Cargo 39",
+            "weight": 37,
+            "max_weight": 48,
+            "profit": 132
+        },
+        {
+            "name": "Cargo 40",
+            "weight": 33,
+            "max_weight": 38,
+            "profit": 65
+        },
+        {
+            "name": "Cargo 41",
+            "weight": 42,
+            "max_weight": 51,
+            "profit": 53
+        },
+        {
+            "name": "Cargo 42",
+            "weight": 13,
+            "max_weight": 16,
+            "profit": 69
+        },
+        {
+            "name": "Cargo 43",
+            "weight": 50,
+            "max_weight": 54,
+            "profit": 138
+        },
+        {
+            "name": "Cargo 44",
+            "weight": 48,
+            "max_weight": 51,
+            "profit": 128
+        },
+        {
+            "name": "Cargo 45",
+            "weight": 34,
+            "max_weight": 45,
+            "profit": 149
+        },
+        {
+            "name": "Cargo 46",
+            "weight": 43,
+            "max_weight": 49,
+            "profit": 171
+        },
+        {
+            "name": "Cargo 47",
+            "weight": 10,
+            "max_weight": 22,
+            "profit": 59
+        },
+        {
+            "name": "Cargo 48",
+            "weight": 44,
+            "max_weight": 50,
+            "profit": 194
+        },
+        {
+            "name": "Cargo 49",
+            "weight": 31,
+            "max_weight": 34,
+            "profit": 105
+        },
+        {
+            "name": "Cargo 50",
+            "weight": 37,
+            "max_weight": 41,
+            "profit": 146
+        },
+        {
+            "name": "Cargo 51",
+            "weight": 10,
+            "max_weight": 16,
+            "profit": 158
+        },
+        {
+            "name": "Cargo 52",
+            "weight": 21,
+            "max_weight": 31,
+            "profit": 57
+        },
+        {
+            "name": "Cargo 53",
+            "weight": 50,
+            "max_weight": 56,
+            "profit": 193
+        },
+        {
+            "name": "Cargo 54",
+            "weight": 42,
+            "max_weight": 53,
+            "profit": 80
+        },
+        {
+            "name": "Cargo 55",
+            "weight": 19,
+            "max_weight": 26,
+            "profit": 71
+        },
+        {
+            "name": "Cargo 56",
+            "weight": 44,
+            "max_weight": 54,
+            "profit": 30
+        },
+        {
+            "name": "Cargo 57",
+            "weight": 48,
+            "max_weight": 55,
+            "profit": 155
+        },
+        {
+            "name": "Cargo 58",
+            "weight": 11,
+            "max_weight": 14,
+            "profit": 122
+        },
+        {
+            "name": "Cargo 59",
+            "weight": 29,
+            "max_weight": 34,
+            "profit": 44
+        },
+        {
+            "name": "Cargo 60",
+            "weight": 25,
+            "max_weight": 36,
+            "profit": 50
+        },
+        {
+            "name": "Cargo 61",
+            "weight": 15,
+            "max_weight": 24,
+            "profit": 47
+        },
+        {
+            "name": "Cargo 62",
+            "weight": 44,
+            "max_weight": 48,
+            "profit": 62
+        },
+        {
+            "name": "Cargo 63",
+            "weight": 40,
+            "max_weight": 50,
+            "profit": 72
+        },
+        {
+            "name": "Cargo 64",
+            "weight": 26,
+            "max_weight": 36,
+            "profit": 185
+        },
+        {
+            "name": "Cargo 65",
+            "weight": 37,
+            "max_weight": 42,
+            "profit": 168
+        },
+        {
+            "name": "Cargo 66",
+            "weight": 22,
+            "max_weight": 28,
+            "profit": 132
+        },
+        {
+            "name": "Cargo 67",
+            "weight": 33,
+            "max_weight": 42,
+            "profit": 162
+        },
+        {
+            "name": "Cargo 68",
+            "weight": 38,
+            "max_weight": 41,
+            "profit": 93
+        },
+        {
+            "name": "Cargo 69",
+            "weight": 24,
+            "max_weight": 27,
+            "profit": 116
+        },
+        {
+            "name": "Cargo 70",
+            "weight": 11,
+            "max_weight": 22,
+            "profit": 171
+        },
+        {
+            "name": "Cargo 71",
+            "weight": 24,
+            "max_weight": 35,
+            "profit": 86
+        },
+        {
+            "name": "Cargo 72",
+            "weight": 10,
+            "max_weight": 13,
+            "profit": 191
+        },
+        {
+            "name": "Cargo 73",
+            "weight": 13,
+            "max_weight": 18,
+            "profit": 47
+        },
+        {
+            "name": "Cargo 74",
+            "weight": 12,
+            "max_weight": 19,
+            "profit": 48
+        },
+        {
+            "name": "Cargo 75",
+            "weight": 42,
+            "max_weight": 47,
+            "profit": 101
+        },
+        {
+            "name": "Cargo 76",
+            "weight": 41,
+            "max_weight": 46,
+            "profit": 168
+        },
+        {
+            "name": "Cargo 77",
+            "weight": 18,
+            "max_weight": 29,
+            "profit": 177
+        },
+        {
+            "name": "Cargo 78",
+            "weight": 40,
+            "max_weight": 45,
+            "profit": 151
+        },
+        {
+            "name": "Cargo 79",
+            "weight": 36,
+            "max_weight": 41,
+            "profit": 54
+        },
+        {
+            "name": "Cargo 80",
+            "weight": 16,
+            "max_weight": 28,
+            "profit": 140
+        },
+        {
+            "name": "Cargo 81",
+            "weight": 32,
+            "max_weight": 40,
+            "profit": 135
+        },
+        {
+            "name": "Cargo 82",
+            "weight": 39,
+            "max_weight": 41,
+            "profit": 197
+        },
+        {
+            "name": "Cargo 83",
+            "weight": 16,
+            "max_weight": 18,
+            "profit": 133
+        },
+        {
+            "name": "Cargo 84",
+            "weight": 31,
+            "max_weight": 34,
+            "profit": 93
+        },
+        {
+            "name": "Cargo 85",
+            "weight": 22,
+            "max_weight": 27,
+            "profit": 167
+        },
+        {
+            "name": "Cargo 86",
+            "weight": 38,
+            "max_weight": 42,
+            "profit": 138
+        },
+        {
+            "name": "Cargo 87",
+            "weight": 21,
+            "max_weight": 27,
+            "profit": 148
+        },
+        {
+            "name": "Cargo 88",
+            "weight": 25,
+            "max_weight": 28,
+            "profit": 143
+        },
+        {
+            "name": "Cargo 89",
+            "weight": 45,
+            "max_weight": 48,
+            "profit": 42
+        },
+        {
+            "name": "Cargo 90",
+            "weight": 44,
+            "max_weight": 46,
+            "profit": 53
+        },
+        {
+            "name": "Cargo 91",
+            "weight": 25,
+            "max_weight": 29,
+            "profit": 134
+        },
+        {
+            "name": "Cargo 92",
+            "weight": 41,
+            "max_weight": 50,
+            "profit": 84
+        },
+        {
+            "name": "Cargo 93",
+            "weight": 35,
+            "max_weight": 37,
+            "profit": 72
+        },
+        {
+            "name": "Cargo 94",
+            "weight": 34,
+            "max_weight": 36,
+            "profit": 129
+        },
+        {
+            "name": "Cargo 95",
+            "weight": 26,
+            "max_weight": 35,
+            "profit": 103
+        },
+        {
+            "name": "Cargo 96",
+            "weight": 37,
+            "max_weight": 47,
+            "profit": 199
+        },
+        {
+            "name": "Cargo 97",
+            "weight": 41,
+            "max_weight": 45,
+            "profit": 78
+        },
+        {
+            "name": "Cargo 98",
+            "weight": 28,
+            "max_weight": 33,
+            "profit": 44
+        },
+        {
+            "name": "Cargo 99",
+            "weight": 47,
+            "max_weight": 57,
+            "profit": 45
+        },
+        {
+            "name": "Cargo 100",
+            "weight": 30,
+            "max_weight": 32,
+            "profit": 42
+        },
+        {
+            "name": "Cargo 101",
+            "weight": 47,
+            "max_weight": 56,
+            "profit": 158
+        },
+        {
+            "name": "Cargo 102",
+            "weight": 43,
+            "max_weight": 47,
+            "profit": 44
+        },
+        {
+            "name": "Cargo 103",
+            "weight": 42,
+            "max_weight": 45,
+            "profit": 77
+        },
+        {
+            "name": "Cargo 104",
+            "weight": 14,
+            "max_weight": 25,
+            "profit": 47
+        },
+        {
+            "name": "Cargo 105",
+            "weight": 25,
+            "max_weight": 33,
+            "profit": 60
+        },
+        {
+            "name": "Cargo 106",
+            "weight": 46,
+            "max_weight": 51,
+            "profit": 178
+        },
+        {
+            "name": "Cargo 107",
+            "weight": 48,
+            "max_weight": 50,
+            "profit": 188
+        },
+        {
+            "name": "Cargo 108",
+            "weight": 15,
+            "max_weight": 23,
+            "profit": 198
+        },
+        {
+            "name": "Cargo 109",
+            "weight": 47,
+            "max_weight": 58,
+            "profit": 163
+        },
+        {
+            "name": "Cargo 110",
+            "weight": 30,
+            "max_weight": 36,
+            "profit": 82
+        },
+        {
+            "name": "Cargo 111",
+            "weight": 30,
+            "max_weight": 35,
+            "profit": 97
+        },
+        {
+            "name": "Cargo 112",
+            "weight": 35,
+            "max_weight": 39,
+            "profit": 195
+        },
+        {
+            "name": "Cargo 113",
+            "weight": 29,
+            "max_weight": 38,
+            "profit": 110
+        },
+        {
+            "name": "Cargo 114",
+            "weight": 14,
+            "max_weight": 16,
+            "profit": 147
+        },
+        {
+            "name": "Cargo 115",
+            "weight": 49,
+            "max_weight": 60,
+            "profit": 55
+        },
+        {
+            "name": "Cargo 116",
+            "weight": 14,
+            "max_weight": 24,
+            "profit": 84
+        },
+        {
+            "name": "Cargo 117",
+            "weight": 42,
+            "max_weight": 48,
+            "profit": 63
+        },
+        {
+            "name": "Cargo 118",
+            "weight": 32,
+            "max_weight": 35,
+            "profit": 92
+        },
+        {
+            "name": "Cargo 119",
+            "weight": 33,
+            "max_weight": 39,
+            "profit": 70
+        },
+        {
+            "name": "Cargo 120",
+            "weight": 38,
+            "max_weight": 48,
+            "profit": 107
+        },
+        {
+            "name": "Cargo 121",
+            "weight": 49,
+            "max_weight": 61,
+            "profit": 165
+        },
+        {
+            "name": "Cargo 122",
+            "weight": 10,
+            "max_weight": 22,
+            "profit": 171
+        },
+        {
+            "name": "Cargo 123",
+            "weight": 29,
+            "max_weight": 41,
+            "profit": 56
+        },
+        {
+            "name": "Cargo 124",
+            "weight": 18,
+            "max_weight": 24,
+            "profit": 59
+        },
+        {
+            "name": "Cargo 125",
+            "weight": 16,
+            "max_weight": 26,
+            "profit": 69
+        },
+        {
+            "name": "Cargo 126",
+            "weight": 27,
+            "max_weight": 33,
+            "profit": 184
+        },
+        {
+            "name": "Cargo 127",
+            "weight": 23,
+            "max_weight": 30,
+            "profit": 82
+        },
+        {
+            "name": "Cargo 128",
+            "weight": 50,
+            "max_weight": 56,
+            "profit": 159
+        },
+        {
+            "name": "Cargo 129",
+            "weight": 41,
+            "max_weight": 47,
+            "profit": 43
+        },
+        {
+            "name": "Cargo 130",
+            "weight": 15,
+            "max_weight": 27,
+            "profit": 138
+        },
+        {
+            "name": "Cargo 131",
+            "weight": 27,
+            "max_weight": 29,
+            "profit": 30
+        },
+        {
+            "name": "Cargo 132",
+            "weight": 31,
+            "max_weight": 35,
+            "profit": 193
+        },
+        {
+            "name": "Cargo 133",
+            "weight": 26,
+            "max_weight": 30,
+            "profit": 143
+        },
+        {
+            "name": "Cargo 134",
+            "weight": 45,
+            "max_weight": 53,
+            "profit": 173
+        },
+        {
+            "name": "Cargo 135",
+            "weight": 10,
+            "max_weight": 13,
+            "profit": 49
+        },
+        {
+            "name": "Cargo 136",
+            "weight": 19,
+            "max_weight": 29,
+            "profit": 39
+        },
+        {
+            "name": "Cargo 137",
+            "weight": 33,
+            "max_weight": 44,
+            "profit": 171
+        },
+        {
+            "name": "Cargo 138",
+            "weight": 19,
+            "max_weight": 27,
+            "profit": 62
+        },
+        {
+            "name": "Cargo 139",
+            "weight": 12,
+            "max_weight": 18,
+            "profit": 123
+        },
+        {
+            "name": "Cargo 140",
+            "weight": 12,
+            "max_weight": 19,
+            "profit": 83
+        },
+        {
+            "name": "Cargo 141",
+            "weight": 25,
+            "max_weight": 37,
+            "profit": 56
+        },
+        {
+            "name": "Cargo 142",
+            "weight": 32,
+            "max_weight": 42,
+            "profit": 134
+        },
+        {
+            "name": "Cargo 143",
+            "weight": 49,
+            "max_weight": 53,
+            "profit": 90
+        },
+        {
+            "name": "Cargo 144",
+            "weight": 20,
+            "max_weight": 24,
+            "profit": 135
+        },
+        {
+            "name": "Cargo 145",
+            "weight": 11,
+            "max_weight": 15,
+            "profit": 115
+        },
+        {
+            "name": "Cargo 146",
+            "weight": 36,
+            "max_weight": 48,
+            "profit": 93
+        },
+        {
+            "name": "Cargo 147",
+            "weight": 27,
+            "max_weight": 31,
+            "profit": 57
+        },
+        {
+            "name": "Cargo 148",
+            "weight": 34,
+            "max_weight": 36,
+            "profit": 150
+        },
+        {
+            "name": "Cargo 149",
+            "weight": 24,
+            "max_weight": 29,
+            "profit": 147
+        },
+        {
+            "name": "Cargo 150",
+            "weight": 32,
+            "max_weight": 38,
+            "profit": 88
+        }
+    ]
+}

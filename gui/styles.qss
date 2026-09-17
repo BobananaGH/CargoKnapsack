@@ -56,10 +56,12 @@ QLabel {
 
 
 /* -----------------------------------------
-   Spin boxes
+   Input controls
 ----------------------------------------- */
 
-QSpinBox {
+QSpinBox,
+QDoubleSpinBox,
+QComboBox {
     background-color: white;
     border: 1px solid #cfd5db;
     border-radius: 5px;
@@ -67,8 +69,31 @@ QSpinBox {
     min-width: 90px;
 }
 
-QSpinBox:focus {
+QSpinBox:focus,
+QDoubleSpinBox:focus,
+QComboBox:focus {
     border: 1px solid #4f46e5;
+}
+
+
+/* -----------------------------------------
+   Combo box
+----------------------------------------- */
+
+QComboBox {
+    min-width: 150px;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 25px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: white;
+    border: 1px solid #cfd5db;
+    selection-background-color: #e0e7ff;
+    selection-color: #111827;
 }
 
 
@@ -120,7 +145,9 @@ QPushButton:pressed {
 }
 
 
-/* Optimize button */
+/* -----------------------------------------
+   Optimize button
+----------------------------------------- */
 
 #optimizeButton {
     background-color: #4f46e5;
@@ -150,4 +177,35 @@ QPushButton:pressed {
 #profitLabel {
     font-size: 18px;
     font-weight: bold;
+}
+
+#selectedTitle {
+    font-size: 15px;
+    font-weight: bold;
+    padding: 3px;
+}
+
+#algorithmLabel {
+    font-size: 17px;
+    font-weight: bold;
+    padding: 4px;
+}
+/* -----------------------------------------
+   Selected cargo list
+----------------------------------------- */
+
+QListWidget {
+    background-color: #ffffff;
+    border: 1px solid #d9dee3;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+QListWidget::item {
+    padding: 5px;
+}
+
+QListWidget::item:selected {
+    background-color: #e0e7ff;
+    color: #111827;
 }

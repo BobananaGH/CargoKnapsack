@@ -1,20 +1,66 @@
-# algorithms/robust_dp.py
+"""
+Exact Dynamic Programming algorithm for the Robust Knapsack Problem.
+
+Based on Section 2 of:
+
+"Exact solution of the robust knapsack problem"
+
+M. Monaci, U. Pferschy, P. Serafini
+
+The implementation follows Figure 2 of the paper.
+
+Items are sorted by non-increasing uncertainty:
+
+    uncertainty_j = max_weight_j - weight_j
+
+The DP state is:
+
+    z[d][s]
+
+where:
+
+    d = current capacity
+    s = number of items currently assumed to take
+        their upper weight
+
+When s == Gamma:
+    additional items may be inserted using nominal weight.
+
+When s < Gamma:
+    an inserted item must use its upper weight.
+
+Complexity:
+
+    Time:  O(Gamma * n * C)
+    Space: O(Gamma * C)
+
+The implementation stores the selected item indexes for
+solution reconstruction.
+"""
+
+
+NEG_INF = float("-inf")
+
 
 def robust_knapsack(cargo_list, capacity, gamma):
     """
-    Solve the Robust Knapsack Problem using Dynamic Programming.
-
-    Based on Section 2 of:
-    "Exact solution of the robust knapsack problem"
+    Solve the Robust Knapsack Problem exactly using Dynamic
+    Programming.
 
     Parameters:
-        cargo_list: list of Cargo objects
-        capacity: maximum capacity
-        gamma: maximum number of items that may reach
-               their upper weight
+        cargo_list:
+            List of Cargo objects.
+
+        capacity:
+            Maximum capacity.
+
+        gamma:
+            Maximum number of selected items that may reach
+            their upper weights.
 
     Returns:
         Dictionary containing:
+
             selected_items
             total_profit
             nominal_weight
@@ -22,6 +68,10 @@ def robust_knapsack(cargo_list, capacity, gamma):
     """
 
     n = len(cargo_list)
+
+    # --------------------------------------------------------
+    # Empty input.
+    # --------------------------------------------------------
 
     if n == 0 or capacity <= 0:
         return {
@@ -31,13 +81,22 @@ def robust_knapsack(cargo_list, capacity, gamma):
             "robust_weight": 0,
         }
 
-    gamma = min(max(gamma, 0), n)
+    # --------------------------------------------------------
+    # Normalize Gamma.
+    # --------------------------------------------------------
 
-    # ---------------------------------------------------------
-    # Sort by decreasing uncertainty.
+    gamma = min(
+        max(gamma, 0),
+        n
+    )
+
+    # --------------------------------------------------------
+    # Sort items by non-increasing uncertainty.
     #
     # uncertainty = max_weight - weight
-    # ---------------------------------------------------------
+    #
+    # This ordering is required by Lemma 1.
+    # --------------------------------------------------------
 
     items = sorted(
         cargo_list,
@@ -45,114 +104,145 @@ def robust_knapsack(cargo_list, capacity, gamma):
         reverse=True
     )
 
-    NEG_INF = float("-inf")
+    # ========================================================
+    # DP ARRAYS
+    # ========================================================
+    #
+    # z[d][s]
+    #
+    # d = total current weight
+    # s = number of items using upper weight
+    #
+    # Each entry stores:
+    #
+    #     best profit
+    #
+    # and
+    #
+    #     tuple of selected item indexes
+    #
+    # for reconstruction.
+    # ========================================================
 
-    # =========================================================
-    # PART 1
-    #
-    # bar_dp[s][d]
-    #
-    # Best profit using exactly s selected items with
-    # their UPPER weights.
-    #
-    # This is used for the cases s < Gamma.
-    # =========================================================
-
-    bar_dp = [
+    dp = [
         [NEG_INF] * (capacity + 1)
         for _ in range(gamma + 1)
     ]
 
-    bar_choice = [
+    choices = [
         [None] * (capacity + 1)
         for _ in range(gamma + 1)
     ]
 
-    bar_dp[0][0] = 0
-    bar_choice[0][0] = ()
+    # --------------------------------------------------------
+    # Initialization:
+    #
+    # z(0,0) = 0
+    #
+    # All other states are initially unreachable.
+    # --------------------------------------------------------
 
-    # Process ALL items.
+    dp[0][0] = 0
+    choices[0][0] = ()
+
+    # ========================================================
+    # MAIN DP
+    # ========================================================
     #
-    # This is necessary because the final solution may have
-    # fewer than Gamma uncertain items.
+    # This follows Figure 2 of the paper:
     #
+    # For each item:
+    #
+    #   1. Possibly pack item using nominal weight
+    #      if Gamma heavy items have already been selected.
+    #
+    #   2. Possibly pack item using upper weight.
+    #
+    # The order is important.
+    # ========================================================
+
     for j in range(n):
 
         cargo = items[j]
 
-        for s in range(gamma, 0, -1):
+        # ----------------------------------------------------
+        # STEP 1
+        #
+        # Possibly pack item j using nominal weight.
+        #
+        # This is only possible in stage Gamma.
+        #
+        # Paper:
+        #
+        # for d := c down to w_j do
+        #     if z(d-w_j,Gamma) + p_j > z(d,Gamma)
+        # ----------------------------------------------------
+
+        if cargo.weight <= capacity:
 
             for d in range(
                 capacity,
-                cargo.max_weight - 1,
+                cargo.weight - 1,
                 -1
             ):
 
-                previous = bar_dp[s - 1][
-                    d - cargo.max_weight
+                previous = dp[
+                    gamma
+                ][
+                    d - cargo.weight
                 ]
 
                 if previous == NEG_INF:
                     continue
 
-                new_profit = previous + cargo.profit
+                candidate = (
+                    previous
+                    + cargo.profit
+                )
 
-                if new_profit > bar_dp[s][d]:
+                if candidate > dp[gamma][d]:
 
-                    bar_dp[s][d] = new_profit
-
-                    previous_choice = bar_choice[
-                        s - 1
+                    old_choice = choices[
+                        gamma
                     ][
-                        d - cargo.max_weight
+                        d - cargo.weight
                     ]
 
-                    bar_choice[s][d] = (
-                        previous_choice + (j,)
+                    dp[gamma][d] = candidate
+
+                    choices[gamma][d] = (
+                        old_choice
+                        + (j,)
                     )
 
-    # =========================================================
-    # PART 2
-    #
-    # Exact Gamma uncertain items.
-    #
-    # According to the paper:
-    #
-    # z(d, Gamma) = bar_z(d, Gamma, Gamma)
-    #
-    # Therefore the Gamma uncertain items must come from
-    # the FIRST Gamma items after sorting by uncertainty.
-    # =========================================================
+        # ----------------------------------------------------
+        # STEP 2
+        #
+        # Possibly pack item j using upper weight.
+        #
+        # This moves from stage s-1 to stage s.
+        #
+        # IMPORTANT:
+        #
+        # s is processed from Gamma down to 1.
+        #
+        # This ensures that the current item cannot be used
+        # more than once.
+        #
+        # Paper:
+        #
+        # for s := Gamma down to 1 do
+        #     for d := c down to w_hat_j do
+        #         if z(d-w_hat_j,s-1) + p_j > z(d,s)
+        # ----------------------------------------------------
 
-    z_dp = [NEG_INF] * (capacity + 1)
-    z_choice = [None] * (capacity + 1)
+        if cargo.max_weight <= capacity:
 
-    if gamma == 0:
-
-        z_dp[0] = 0
-        z_choice[0] = ()
-
-    else:
-
-        # Recalculate the DP using ONLY the first Gamma items.
-        first_gamma_dp = [
-            [NEG_INF] * (capacity + 1)
-            for _ in range(gamma + 1)
-        ]
-
-        first_gamma_choice = [
-            [None] * (capacity + 1)
-            for _ in range(gamma + 1)
-        ]
-
-        first_gamma_dp[0][0] = 0
-        first_gamma_choice[0][0] = ()
-
-        for j in range(gamma):
-
-            cargo = items[j]
-
-            for s in range(gamma, 0, -1):
+            for s in range(
+                gamma,
+                0,
+                -1
+            ):
 
                 for d in range(
                     capacity,
@@ -160,126 +250,81 @@ def robust_knapsack(cargo_list, capacity, gamma):
                     -1
                 ):
 
-                    previous = first_gamma_dp[s - 1][
+                    previous = dp[
+                        s - 1
+                    ][
                         d - cargo.max_weight
                     ]
 
                     if previous == NEG_INF:
                         continue
 
-                    new_profit = (
-                        previous + cargo.profit
+                    candidate = (
+                        previous
+                        + cargo.profit
                     )
 
-                    if new_profit > first_gamma_dp[s][d]:
+                    if candidate > dp[s][d]:
 
-                        first_gamma_dp[s][d] = new_profit
+                        old_choice = choices[
+                            s - 1
+                        ][
+                            d - cargo.max_weight
+                        ]
 
-                        previous_choice = (
-                            first_gamma_choice[
-                                s - 1
-                            ][
-                                d - cargo.max_weight
-                            ]
+                        dp[s][d] = candidate
+
+                        choices[s][d] = (
+                            old_choice
+                            + (j,)
                         )
 
-                        first_gamma_choice[s][d] = (
-                            previous_choice + (j,)
-                        )
-
-        # z(d, Gamma) = bar_z(d, Gamma, Gamma)
-        for d in range(capacity + 1):
-
-            if first_gamma_dp[gamma][d] != NEG_INF:
-
-                z_dp[d] = first_gamma_dp[gamma][d]
-                z_choice[d] = first_gamma_choice[gamma][d]
-
-    # =========================================================
-    # PART 3
+    # ========================================================
+    # FIND BEST SOLUTION
+    # ========================================================
     #
-    # Add remaining items using their NOMINAL weights.
+    # The paper's Figure 2 returns:
     #
-    # These are items Gamma+1 ... n in the paper.
-    # =========================================================
-
-    for j in range(gamma, n):
-
-        cargo = items[j]
-
-        for d in range(
-            capacity,
-            cargo.weight - 1,
-            -1
-        ):
-
-            previous = z_dp[
-                d - cargo.weight
-            ]
-
-            if previous == NEG_INF:
-                continue
-
-            new_profit = previous + cargo.profit
-
-            if new_profit > z_dp[d]:
-
-                z_dp[d] = new_profit
-
-                previous_choice = z_choice[
-                    d - cargo.weight
-                ]
-
-                z_choice[d] = (
-                    previous_choice + (j,)
-                )
-
-    # =========================================================
-    # PART 4
+    # max { z(d,s) |
+    #       d = 1,...,c
+    #       s = 1,...,Gamma }
     #
-    # Find the best solution.
+    # The destination can also be reached with fewer than
+    # Gamma heavy items, so we include s = 0 as well.
     #
-    # The paper considers:
-    #
-    # 1. Exactly Gamma uncertain items
-    # 2. Fewer than Gamma uncertain items
-    # =========================================================
+    # This is necessary for cases where Gamma is larger than
+    # the number of selected items.
+    # ========================================================
 
     best_profit = 0
     best_choice = ()
 
-    # Case 1:
-    # Exactly Gamma uncertain items
-    for d in range(capacity + 1):
+    for s in range(
+        gamma + 1
+    ):
 
-        if z_dp[d] > best_profit:
+        for d in range(
+            capacity + 1
+        ):
 
-            best_profit = z_dp[d]
-            best_choice = z_choice[d]
+            if dp[s][d] > best_profit:
 
-    # Case 2:
-    # Fewer than Gamma uncertain items
-    for s in range(1, gamma):
+                best_profit = dp[s][d]
 
-        for d in range(capacity + 1):
+                best_choice = choices[s][d]
 
-            if bar_dp[s][d] > best_profit:
-
-                best_profit = bar_dp[s][d]
-                best_choice = bar_choice[s][d]
-
-    # =========================================================
-    # Convert indexes back to Cargo objects.
-    # =========================================================
+    # ========================================================
+    # RECONSTRUCT SELECTED ITEMS
+    # ========================================================
 
     selected_items = [
         items[index]
         for index in best_choice
     ]
 
-    # =========================================================
-    # Calculate final result.
-    # =========================================================
+    # ========================================================
+    # CALCULATE RESULT
+    # ========================================================
 
     total_profit = sum(
         cargo.profit
@@ -291,20 +336,43 @@ def robust_knapsack(cargo_list, capacity, gamma):
         for cargo in selected_items
     )
 
-    # Worst-case additional weight:
-    # take the Gamma largest uncertainties.
+    # --------------------------------------------------------
+    # Worst-case robust weight:
+    #
+    # nominal weight
+    # +
+    # Gamma largest uncertainties
+    # --------------------------------------------------------
+
     uncertainties = sorted(
-        [
+        (
             cargo.uncertainty
             for cargo in selected_items
-        ],
+        ),
         reverse=True
     )
 
     robust_weight = (
         nominal_weight
-        + sum(uncertainties[:gamma])
+        + sum(
+            uncertainties[:gamma]
+        )
     )
+
+    # ========================================================
+    # SAFETY CHECK
+    # ========================================================
+
+    if robust_weight > capacity:
+
+        raise RuntimeError(
+            "Internal error: reconstructed solution "
+            "is not robust feasible."
+        )
+
+    # ========================================================
+    # RETURN RESULT
+    # ========================================================
 
     return {
         "selected_items": selected_items,

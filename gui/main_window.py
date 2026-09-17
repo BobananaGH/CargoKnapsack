@@ -68,15 +68,21 @@ class MainWindow(QMainWindow):
         )
 
     def optimize(self):
-
         try:
-
             # -----------------------------------------
             # Get parameters
             # -----------------------------------------
 
             capacity = self.cargo_view.capacity_input.value()
             gamma = self.cargo_view.gamma_input.value()
+
+            algorithm = (
+                self.cargo_view.algorithm_input.currentText()
+            )
+
+            epsilon = (
+                self.cargo_view.epsilon_input.value()
+            )
 
             # -----------------------------------------
             # Read cargo table
@@ -148,7 +154,6 @@ class MainWindow(QMainWindow):
                 cargo_list.append(cargo)
 
             if not cargo_list:
-
                 raise ValueError(
                     "Please add at least one cargo."
                 )
@@ -160,7 +165,9 @@ class MainWindow(QMainWindow):
             result = optimize_cargo(
                 cargo_list,
                 capacity,
-                gamma
+                gamma,
+                algorithm,
+                epsilon
             )
 
             # -----------------------------------------
@@ -170,11 +177,12 @@ class MainWindow(QMainWindow):
             self.result_view.show_result(
                 result,
                 capacity,
-                gamma
+                gamma,
+                algorithm,
+                epsilon
             )
 
         except ValueError as error:
-
             QMessageBox.warning(
                 self,
                 "Invalid Input",
@@ -182,7 +190,6 @@ class MainWindow(QMainWindow):
             )
 
         except Exception as error:
-
             QMessageBox.critical(
                 self,
                 "Optimization Error",
