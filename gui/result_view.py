@@ -1,7 +1,6 @@
-# gui/result_view.py
-
 from PySide6.QtWidgets import (
     QGroupBox,
+    QHBoxLayout,
     QLabel,
     QListWidget,
     QVBoxLayout,
@@ -12,32 +11,44 @@ from PySide6.QtWidgets import (
 class ResultView(QWidget):
 
     def __init__(self):
+
         super().__init__()
 
+        self.setMaximumHeight(260)
+
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+
+        layout.setContentsMargins(
+            0,
+            0,
+            0,
+            0
+        )
+
         self.setLayout(layout)
+
+        # ---------------------------------------------
+        # Result box
+        # ---------------------------------------------
 
         result_box = QGroupBox(
             "Optimization Result"
         )
 
-        result_layout = QVBoxLayout()
+        result_layout = QHBoxLayout()
+
+        result_layout.setSpacing(20)
+
+        # ---------------------------------------------
+        # Left column
+        # ---------------------------------------------
+
+        left_column = QVBoxLayout()
+
+        left_column.setSpacing(3)
 
         self.algorithm_label = QLabel(
             "Algorithm: -"
-        )
-
-        self.selected_title = QLabel(
-            "Selected Cargo:"
-        )
-
-        self.selected_list = QListWidget()
-        self.selected_list.setMinimumHeight(120)
-        self.selected_list.setMaximumHeight(180)
-
-        self.profit_label = QLabel(
-            "Total Profit: -"
         )
 
         self.nominal_label = QLabel(
@@ -64,18 +75,12 @@ class ResultView(QWidget):
             "Runtime: -"
         )
 
+        # ---------------------------------------------
         # Object names for QSS
+        # ---------------------------------------------
 
         self.algorithm_label.setObjectName(
             "algorithmLabel"
-        )
-
-        self.selected_title.setObjectName(
-            "selectedTitle"
-        )
-
-        self.profit_label.setObjectName(
-            "profitLabel"
         )
 
         self.nominal_label.setObjectName(
@@ -102,46 +107,104 @@ class ResultView(QWidget):
             "resultLabel"
         )
 
-        # Add widgets
+        # ---------------------------------------------
+        # Add result information
+        # ---------------------------------------------
 
-        result_layout.addWidget(
+        left_column.addWidget(
             self.algorithm_label
         )
 
-        result_layout.addWidget(
-            self.selected_title
-        )
-
-        result_layout.addWidget(
-            self.selected_list
-        )
-
-        result_layout.addWidget(
-            self.profit_label
-        )
-
-        result_layout.addWidget(
+        left_column.addWidget(
             self.nominal_label
         )
 
-        result_layout.addWidget(
+        left_column.addWidget(
             self.robust_label
         )
 
-        result_layout.addWidget(
+        left_column.addWidget(
             self.capacity_label
         )
 
-        result_layout.addWidget(
+        left_column.addWidget(
             self.gamma_label
         )
 
-        result_layout.addWidget(
+        left_column.addWidget(
             self.epsilon_label
         )
 
-        result_layout.addWidget(
+        left_column.addWidget(
             self.runtime_label
+        )
+
+        left_column.addStretch()
+
+        # ---------------------------------------------
+        # Right column
+        # ---------------------------------------------
+
+        right_column = QVBoxLayout()
+
+        right_column.setSpacing(4)
+
+        self.selected_title = QLabel(
+            "Selected Cargo:"
+        )
+
+        self.selected_list = QListWidget()
+
+        self.selected_list.setMinimumHeight(
+            80
+        )
+
+        self.profit_label = QLabel(
+            "Total Profit: -"
+        )
+
+        self.selected_title.setObjectName(
+            "selectedTitle"
+        )
+
+        self.profit_label.setObjectName(
+            "profitLabel"
+        )
+
+        # ---------------------------------------------
+        # Add selected cargo
+        # ---------------------------------------------
+
+        right_column.addWidget(
+            self.selected_title
+        )
+
+        # Stretch to fill available space
+        right_column.addWidget(
+            self.selected_list,
+            1
+        )
+
+        # ---------------------------------------------
+        # Total profit
+        # ---------------------------------------------
+
+        right_column.addWidget(
+            self.profit_label
+        )
+
+        # ---------------------------------------------
+        # Combine columns
+        # ---------------------------------------------
+
+        result_layout.addLayout(
+            left_column,
+            2
+        )
+
+        result_layout.addLayout(
+            right_column,
+            1
         )
 
         result_box.setLayout(
@@ -152,6 +215,10 @@ class ResultView(QWidget):
             result_box
         )
 
+    # ---------------------------------------------
+    # Show result
+    # ---------------------------------------------
+
     def show_result(
         self,
         result,
@@ -160,31 +227,41 @@ class ResultView(QWidget):
         algorithm,
         epsilon
     ):
+
         selected_items = result[
             "selected_items"
         ]
 
+        # -----------------------------------------
         # Clear previous cargo
+        # -----------------------------------------
+
         self.selected_list.clear()
 
-        # Add selected cargo to scrollable list
+        # -----------------------------------------
+        # Add selected cargo
+        # -----------------------------------------
+
         if selected_items:
+
             for cargo in selected_items:
+
                 self.selected_list.addItem(
                     cargo.name
                 )
+
         else:
+
             self.selected_list.addItem(
                 "None"
             )
 
+        # -----------------------------------------
+        # Result information
+        # -----------------------------------------
+
         self.algorithm_label.setText(
             f"Algorithm: {algorithm}"
-        )
-
-        self.profit_label.setText(
-            f"Total Profit: "
-            f"{result['total_profit']}"
         )
 
         self.nominal_label.setText(
@@ -206,10 +283,13 @@ class ResultView(QWidget):
         )
 
         if algorithm == "FPTAS":
+
             self.epsilon_label.setText(
                 f"Epsilon: {epsilon}"
             )
+
         else:
+
             self.epsilon_label.setText(
                 "Epsilon: N/A"
             )
@@ -217,4 +297,9 @@ class ResultView(QWidget):
         self.runtime_label.setText(
             f"Runtime: "
             f"{result['runtime']:.6f} seconds"
+        )
+
+        self.profit_label.setText(
+            f"Total Profit: "
+            f"{result['total_profit']}"
         )

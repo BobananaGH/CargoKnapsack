@@ -170,26 +170,29 @@ QPushButton:pressed {
 ----------------------------------------- */
 
 #resultLabel {
+    font-size: 14px;
+    padding: 1px;
+}
+
+#algorithmLabel {
     font-size: 15px;
-    padding: 3px;
+    font-weight: bold;
+    padding: 2px;
 }
 
 #profitLabel {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: bold;
+    padding: 2px;
 }
 
 #selectedTitle {
     font-size: 15px;
     font-weight: bold;
-    padding: 3px;
+    padding: 2px;
 }
 
-#algorithmLabel {
-    font-size: 17px;
-    font-weight: bold;
-    padding: 4px;
-}
+
 /* -----------------------------------------
    Selected cargo list
 ----------------------------------------- */
