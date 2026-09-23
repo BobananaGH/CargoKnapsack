@@ -19,17 +19,20 @@ from services.optimizer import optimize_cargo
 class MainWindow(QMainWindow):
 
     def __init__(self):
-
         super().__init__()
 
         self.setWindowTitle(
             "CargoKnapsack - Robust Cargo Optimization"
         )
 
-        self.resize(900, 700)
+        self.setMinimumWidth(1000)
+        self.resize(1000, 700)
 
         central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+
+        self.setCentralWidget(
+            central_widget
+        )
 
         layout = QVBoxLayout()
 
@@ -42,7 +45,9 @@ class MainWindow(QMainWindow):
 
         layout.setSpacing(15)
 
-        central_widget.setLayout(layout)
+        central_widget.setLayout(
+            layout
+        )
 
         # ---------------------------------------------
         # Views
@@ -68,13 +73,15 @@ class MainWindow(QMainWindow):
         )
 
     def optimize(self):
+
         try:
             # -----------------------------------------
-            # Get parameters
+            # Common parameters
             # -----------------------------------------
 
-            capacity = self.cargo_view.capacity_input.value()
-            gamma = self.cargo_view.gamma_input.value()
+            capacity = (
+                self.cargo_view.capacity_input.value()
+            )
 
             algorithm = (
                 self.cargo_view.algorithm_input.currentText()
@@ -85,19 +92,38 @@ class MainWindow(QMainWindow):
             )
 
             # -----------------------------------------
-            # Read cargo table
+            # Read normal cargo dataset
             # -----------------------------------------
 
             cargo_list = []
 
-            table = self.cargo_view.cargo_table
+            table = (
+                self.cargo_view.cargo_table
+            )
 
-            for row in range(table.rowCount()):
+            for row in range(
+                table.rowCount()
+            ):
 
-                name_item = table.item(row, 0)
-                weight_item = table.item(row, 1)
-                max_weight_item = table.item(row, 2)
-                profit_item = table.item(row, 3)
+                name_item = table.item(
+                    row,
+                    0
+                )
+
+                weight_item = table.item(
+                    row,
+                    1
+                )
+
+                max_weight_item = table.item(
+                    row,
+                    2
+                )
+
+                profit_item = table.item(
+                    row,
+                    3
+                )
 
                 if (
                     name_item is None
@@ -107,38 +133,52 @@ class MainWindow(QMainWindow):
                 ):
                     continue
 
-                name = name_item.text().strip()
+                name = (
+                    name_item.text().strip()
+                )
 
                 if not name:
                     raise ValueError(
-                        f"Cargo row {row + 1} has no name."
+                        f"Cargo row {row + 1} "
+                        "has no name."
                     )
 
-                weight = int(
-                    weight_item.text()
-                )
+                try:
+                    weight = int(
+                        weight_item.text()
+                    )
 
-                max_weight = int(
-                    max_weight_item.text()
-                )
+                    max_weight = int(
+                        max_weight_item.text()
+                    )
 
-                profit = int(
-                    profit_item.text()
-                )
+                    profit = int(
+                        profit_item.text()
+                    )
+
+                except ValueError:
+
+                    raise ValueError(
+                        f"Invalid numeric value "
+                        f"at cargo row {row + 1}."
+                    )
 
                 if weight < 0:
+
                     raise ValueError(
                         f"Weight cannot be negative "
                         f"at row {row + 1}."
                     )
 
                 if max_weight < weight:
+
                     raise ValueError(
                         f"Max Weight cannot be smaller "
                         f"than Weight at row {row + 1}."
                     )
 
                 if profit < 0:
+
                     raise ValueError(
                         f"Profit cannot be negative "
                         f"at row {row + 1}."
@@ -151,15 +191,40 @@ class MainWindow(QMainWindow):
                     profit=profit
                 )
 
-                cargo_list.append(cargo)
+                cargo_list.append(
+                    cargo
+                )
 
             if not cargo_list:
+
                 raise ValueError(
                     "Please add at least one cargo."
                 )
 
             # -----------------------------------------
-            # Run optimization
+            # Gamma
+            # -----------------------------------------
+            #
+            # The 2013 algorithms use the robust
+            # uncertainty budget.
+            #
+            # The 2026 dominance-list DP is being
+            # compared on the ordinary 0/1 knapsack
+            # problem, so gamma is fixed to zero.
+            # -----------------------------------------
+
+            if algorithm == "Dominance-List DP 2026":
+
+                gamma = 0
+
+            else:
+
+                gamma = (
+                    self.cargo_view.gamma_input.value()
+                )
+
+            # -----------------------------------------
+            # Run optimization algorithm
             # -----------------------------------------
 
             result = optimize_cargo(
@@ -183,6 +248,7 @@ class MainWindow(QMainWindow):
             )
 
         except ValueError as error:
+
             QMessageBox.warning(
                 self,
                 "Invalid Input",
@@ -190,6 +256,7 @@ class MainWindow(QMainWindow):
             )
 
         except Exception as error:
+
             QMessageBox.critical(
                 self,
                 "Optimization Error",

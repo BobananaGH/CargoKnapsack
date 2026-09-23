@@ -8,6 +8,9 @@ from algorithms.bsmilp import bsmilp
 from algorithms.llpp import llpp
 from algorithms.branch_and_cut import branch_and_cut
 from algorithms.fptas import fptas
+from algorithms.dominance_lifting_2026 import (
+    dominance_list_knapsack,
+)
 
 
 def optimize_cargo(
@@ -18,13 +21,13 @@ def optimize_cargo(
     epsilon=0.2
 ):
     """
-    Run the selected Robust Knapsack optimization algorithm
-    and measure its execution time.
+    Run one of the cargo optimization algorithms.
     """
 
     start_time = time.perf_counter()
 
     if algorithm == "Robust DP":
+
         result = robust_knapsack(
             cargo_list,
             capacity,
@@ -32,6 +35,7 @@ def optimize_cargo(
         )
 
     elif algorithm == "Recursive Partitioning":
+
         result = recursive_partitioning(
             cargo_list,
             capacity,
@@ -39,6 +43,7 @@ def optimize_cargo(
         )
 
     elif algorithm == "BSMILP":
+
         result = bsmilp(
             cargo_list,
             capacity,
@@ -46,6 +51,7 @@ def optimize_cargo(
         )
 
     elif algorithm == "LLPP":
+
         result = llpp(
             cargo_list,
             capacity,
@@ -53,13 +59,15 @@ def optimize_cargo(
         )
 
     elif algorithm == "Branch-and-Cut":
+
         result = branch_and_cut(
             cargo_list,
             capacity,
             gamma
         )
 
-    elif algorithm == "FPTAS":
+    elif algorithm == "FPTAS 2013":
+
         result = fptas(
             cargo_list,
             capacity,
@@ -67,15 +75,41 @@ def optimize_cargo(
             epsilon
         )
 
+    elif algorithm == "Dominance-List DP 2026":
+
+        weights = [
+            cargo.weight
+            for cargo in cargo_list
+        ]
+
+        profits = [
+            cargo.profit
+            for cargo in cargo_list
+        ]
+
+        result = dominance_list_knapsack(
+            weights=weights,
+            profits=profits,
+            capacity=capacity
+        )
+
+        # Convert the selected item indices
+        # into the original Cargo objects.
+        result["selected_items"] = [
+            cargo_list[index]
+            for index in result["selected_indices"]
+        ]
+
     else:
+
         raise ValueError(
-            f"Unknown algorithm: {algorithm}"
+            f"Unknown cargo optimization algorithm: {algorithm}"
         )
 
     end_time = time.perf_counter()
 
-    runtime = end_time - start_time
-
-    result["runtime"] = runtime
+    result["runtime"] = (
+        end_time - start_time
+    )
 
     return result

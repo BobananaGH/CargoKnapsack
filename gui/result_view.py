@@ -1,3 +1,5 @@
+# gui/result_view.py
+
 from PySide6.QtWidgets import (
     QGroupBox,
     QHBoxLayout,
@@ -11,10 +13,9 @@ from PySide6.QtWidgets import (
 class ResultView(QWidget):
 
     def __init__(self):
-
         super().__init__()
 
-        self.setMaximumHeight(260)
+        self.setMaximumHeight(320)
 
         layout = QVBoxLayout()
 
@@ -37,7 +38,9 @@ class ResultView(QWidget):
 
         result_layout = QHBoxLayout()
 
-        result_layout.setSpacing(20)
+        result_layout.setSpacing(
+            20
+        )
 
         # ---------------------------------------------
         # Left column
@@ -45,7 +48,9 @@ class ResultView(QWidget):
 
         left_column = QVBoxLayout()
 
-        left_column.setSpacing(3)
+        left_column.setSpacing(
+            3
+        )
 
         self.algorithm_label = QLabel(
             "Algorithm: -"
@@ -57,6 +62,10 @@ class ResultView(QWidget):
 
         self.robust_label = QLabel(
             "Robust Weight: -"
+        )
+
+        self.optimal_weight_label = QLabel(
+            "Optimal Weight: -"
         )
 
         self.capacity_label = QLabel(
@@ -75,6 +84,10 @@ class ResultView(QWidget):
             "Runtime: -"
         )
 
+        self.objective_label = QLabel(
+            "Objective Value: -"
+        )
+
         # ---------------------------------------------
         # Object names for QSS
         # ---------------------------------------------
@@ -88,6 +101,10 @@ class ResultView(QWidget):
         )
 
         self.robust_label.setObjectName(
+            "resultLabel"
+        )
+
+        self.optimal_weight_label.setObjectName(
             "resultLabel"
         )
 
@@ -107,6 +124,10 @@ class ResultView(QWidget):
             "resultLabel"
         )
 
+        self.objective_label.setObjectName(
+            "profitLabel"
+        )
+
         # ---------------------------------------------
         # Add result information
         # ---------------------------------------------
@@ -116,11 +137,19 @@ class ResultView(QWidget):
         )
 
         left_column.addWidget(
+            self.objective_label
+        )
+
+        left_column.addWidget(
             self.nominal_label
         )
 
         left_column.addWidget(
             self.robust_label
+        )
+
+        left_column.addWidget(
+            self.optimal_weight_label
         )
 
         left_column.addWidget(
@@ -147,7 +176,9 @@ class ResultView(QWidget):
 
         right_column = QVBoxLayout()
 
-        right_column.setSpacing(4)
+        right_column.setSpacing(
+            4
+        )
 
         self.selected_title = QLabel(
             "Selected Cargo:"
@@ -179,15 +210,10 @@ class ResultView(QWidget):
             self.selected_title
         )
 
-        # Stretch to fill available space
         right_column.addWidget(
             self.selected_list,
             1
         )
-
-        # ---------------------------------------------
-        # Total profit
-        # ---------------------------------------------
 
         right_column.addWidget(
             self.profit_label
@@ -215,6 +241,202 @@ class ResultView(QWidget):
             result_box
         )
 
+        # ---------------------------------------------
+        # Initial visibility
+        # ---------------------------------------------
+
+        self.set_robust_result_visible(
+            True
+        )
+
+    # ---------------------------------------------
+    # Visibility helpers
+    # ---------------------------------------------
+
+    def set_robust_result_visible(
+        self,
+        visible
+    ):
+        """
+        Configure the result panel for the
+        2013 Robust Knapsack algorithms.
+        """
+
+        self.nominal_label.setVisible(
+            visible
+        )
+
+        self.robust_label.setVisible(
+            visible
+        )
+
+        self.optimal_weight_label.setVisible(
+            not visible
+        )
+
+        self.gamma_label.setVisible(
+            visible
+        )
+
+        self.selected_title.setVisible(
+            visible
+        )
+
+        self.selected_list.setVisible(
+            visible
+        )
+
+        self.profit_label.setVisible(
+            visible
+        )
+
+        self.objective_label.setVisible(
+            not visible
+        )
+
+    # ---------------------------------------------
+    # Show 2026 Dominance-List DP result
+    # ---------------------------------------------
+
+    def show_dominance_dp_result(
+        self,
+        result,
+        capacity,
+        algorithm
+    ):
+        """
+        Display the result of the 2026
+        dominance-list dynamic programming algorithm.
+        """
+
+        # -----------------------------------------
+        # Hide Robust Knapsack-specific fields
+        # -----------------------------------------
+
+        self.nominal_label.setVisible(
+            False
+        )
+
+        self.robust_label.setVisible(
+            False
+        )
+
+        self.gamma_label.setVisible(
+            False
+        )
+
+        self.epsilon_label.setVisible(
+            False
+        )
+
+        self.profit_label.setVisible(
+            False
+        )
+
+        # -----------------------------------------
+        # General information
+        # -----------------------------------------
+
+        self.algorithm_label.setText(
+            f"Algorithm: {algorithm}"
+        )
+
+        self.algorithm_label.setVisible(
+            True
+        )
+
+        self.capacity_label.setText(
+            f"Capacity: {capacity}"
+        )
+
+        self.capacity_label.setVisible(
+            True
+        )
+
+        self.runtime_label.setText(
+            "Runtime: "
+            f"{result['runtime']:.6f} seconds"
+        )
+
+        self.runtime_label.setVisible(
+            True
+        )
+
+        # -----------------------------------------
+        # Optimal weight
+        # -----------------------------------------
+
+        total_weight = result[
+            "total_weight"
+        ]
+
+        self.optimal_weight_label.setText(
+            "Optimal Weight: "
+            f"{total_weight}"
+        )
+
+        self.optimal_weight_label.setVisible(
+            True
+        )
+
+        # -----------------------------------------
+        # Optimal profit
+        # -----------------------------------------
+
+        total_profit = result[
+            "total_profit"
+        ]
+
+        self.objective_label.setText(
+            "Optimal Profit: "
+            f"{total_profit}"
+        )
+
+        self.objective_label.setVisible(
+            True
+        )
+
+        # -----------------------------------------
+        # Clear previous selected cargo
+        # -----------------------------------------
+
+        self.selected_list.clear()
+
+        # -----------------------------------------
+        # Selected cargo
+        # -----------------------------------------
+
+        self.selected_title.setText(
+            "Selected Cargo:"
+        )
+
+        self.selected_title.setVisible(
+            True
+        )
+
+        self.selected_list.setVisible(
+            True
+        )
+
+        selected_items = result.get(
+            "selected_items",
+            []
+        )
+
+        if selected_items:
+
+            for cargo in selected_items:
+
+                self.selected_list.addItem(
+                    cargo.name
+                )
+
+        else:
+
+            self.selected_list.addItem(
+                "None"
+            )
+
     # ---------------------------------------------
     # Show result
     # ---------------------------------------------
@@ -228,15 +450,41 @@ class ResultView(QWidget):
         epsilon
     ):
 
+        # -----------------------------------------
+        # 2026 Dominance-List DP
+        # -----------------------------------------
+
+        if algorithm == "Dominance-List DP 2026":
+
+            self.show_dominance_dp_result(
+                result,
+                capacity,
+                algorithm
+            )
+
+            return
+
+        # -----------------------------------------
+        # 2013 Robust Knapsack
+        # -----------------------------------------
+
+        self.set_robust_result_visible(
+            True
+        )
+
         selected_items = result[
             "selected_items"
         ]
 
         # -----------------------------------------
-        # Clear previous cargo
+        # Clear previous solution
         # -----------------------------------------
 
         self.selected_list.clear()
+
+        self.selected_title.setText(
+            "Selected Cargo:"
+        )
 
         # -----------------------------------------
         # Add selected cargo
@@ -265,12 +513,12 @@ class ResultView(QWidget):
         )
 
         self.nominal_label.setText(
-            f"Nominal Weight: "
+            "Nominal Weight: "
             f"{result['nominal_weight']}"
         )
 
         self.robust_label.setText(
-            f"Robust Weight: "
+            "Robust Weight: "
             f"{result['robust_weight']}"
         )
 
@@ -282,7 +530,7 @@ class ResultView(QWidget):
             f"Gamma: {gamma}"
         )
 
-        if algorithm == "FPTAS":
+        if algorithm == "FPTAS 2013":
 
             self.epsilon_label.setText(
                 f"Epsilon: {epsilon}"
@@ -295,11 +543,11 @@ class ResultView(QWidget):
             )
 
         self.runtime_label.setText(
-            f"Runtime: "
+            "Runtime: "
             f"{result['runtime']:.6f} seconds"
         )
 
         self.profit_label.setText(
-            f"Total Profit: "
+            "Total Profit: "
             f"{result['total_profit']}"
         )
