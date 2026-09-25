@@ -3,12 +3,12 @@ Recursive Partitioning algorithm for the Robust Knapsack Problem.
 
 Based on:
 
+M. Monaci, U. Pferschy, P. Serafini,
 "Exact solution of the robust knapsack problem"
 
-M. Monaci, U. Pferschy, P. Serafini
-
-This implementation follows the recursive solution-set reconstruction
-scheme presented in Section 3 and Figure 3 of the paper.
+This implementation follows the recursive solution-set
+reconstruction scheme presented in Section 3 and Figure 3
+of the paper.
 
 Main structure:
 
@@ -37,20 +37,26 @@ The items must be sorted by non-increasing uncertainty:
 
     uncertainty_j = max_weight_j - weight_j
 
-The paper's Section 3 uses:
+The Section 3 recursive reconstruction uses:
 
     - Solve_RKP
     - ordinary nominal KP
     - E-kKP (exactly k selected items)
     - recursive partitioning
 
-Complexity stated in the paper:
+The dominance/robust DP is used to determine:
+
+    z* = optimal profit
+    c* = capacity associated with z*
+    k* = number of selected items from the first partition
+
+This implementation keeps additional reconstruction information
+where necessary, but the recursive structure follows Figure 3.
+
+Complexity of the underlying Robust DP:
 
     Time:  O(Gamma * n * C)
     Space: O(n + Gamma * C)
-
-This implementation keeps additional information during the
-reconstruction phase to make the selected solution explicit.
 """
 
 NEG_INF = float("-inf")
@@ -60,7 +66,11 @@ NEG_INF = float("-inf")
 # Solve_RKP
 # ============================================================
 
-def _solve_rkp_values(items, capacity, gamma):
+def _solve_rkp_values(
+    items,
+    capacity,
+    gamma
+):
     """
     Solve_RKP from the paper.
 
@@ -70,33 +80,38 @@ def _solve_rkp_values(items, capacity, gamma):
     Also returns:
 
         first_half_count[d]
-            Number of selected items from the first half of items.
+            Number of selected items from the first half.
 
         total_selected_count[d]
             Total number of selected items.
 
-    The first-half counter is the k(d, Gamma) counter described
-    in Section 3 of the paper.
+    The first-half counter corresponds to the k(d, Gamma)
+    counter used by the recursive partitioning procedure
+    in Section 3.
 
-    The DP states correspond to the graph in Section 2:
+    DP state:
 
-        state (d, s)
+        dp[s][d]
 
-    where s is the number of selected items that have been
-    assigned their upper/max weight.
+    where:
+
+        s = number of selected items assigned increased/max weight
+        d = exact robust weight
 
     Transitions:
 
         Heavy:
+
             (d - max_weight, s - 1)
                 -> (d, s)
 
         Light:
+
             (d - nominal_weight, Gamma)
                 -> (d, Gamma)
 
-    Once Gamma heavy items have been selected, later items
-    can be inserted using nominal weight.
+    Once Gamma increased-weight items have been selected,
+    additional selected items use their nominal weights.
     """
 
     n = len(items)
@@ -106,14 +121,16 @@ def _solve_rkp_values(items, capacity, gamma):
         n
     )
 
-    first_half_size = (n + 1) // 2
+    first_half_size = (
+        n + 1
+    ) // 2
 
     # --------------------------------------------------------
     # DP arrays.
     #
     # dp[s][d]
     #
-    # s = number of heavy/increased-weight items
+    # s = number of increased-weight items
     # d = exact robust weight
     # --------------------------------------------------------
 
@@ -141,8 +158,8 @@ def _solve_rkp_values(items, capacity, gamma):
 
     for index, cargo in enumerate(items):
 
-        # We need the previous iteration because one item
-        # cannot be selected twice.
+        # Copy previous iteration so that each item
+        # can be selected at most once.
         previous_dp = [
             row[:]
             for row in dp
@@ -159,12 +176,12 @@ def _solve_rkp_values(items, capacity, gamma):
         ]
 
         # ----------------------------------------------------
-        # Each state can either:
+        # Each state can:
         #
         # 1. Skip the item.
-        # 2. Take it as a heavy item.
-        # 3. Take it as a light item if Gamma heavy items
-        #    have already been selected.
+        # 2. Take the item as an increased-weight item.
+        # 3. Take the item with nominal weight once Gamma
+        #    increased-weight items have already been selected.
         # ----------------------------------------------------
 
         for s in range(gamma + 1):
@@ -186,9 +203,7 @@ def _solve_rkp_values(items, capacity, gamma):
                 )
 
                 # ------------------------------------------------
-                # Option 2: heavy transition.
-                #
-                # Previous state has s - 1 heavy items.
+                # Option 2: increased/heavy transition.
                 # ------------------------------------------------
 
                 if s > 0:
@@ -250,10 +265,10 @@ def _solve_rkp_values(items, capacity, gamma):
                                 )
 
                 # ------------------------------------------------
-                # Option 3: light transition.
+                # Option 3: nominal/light transition.
                 #
-                # Once Gamma heavy items have been selected,
-                # additional items use nominal weight.
+                # This is possible only after Gamma
+                # increased-weight items have been selected.
                 # ------------------------------------------------
 
                 if s == gamma:
@@ -315,9 +330,11 @@ def _solve_rkp_values(items, capacity, gamma):
                                 )
 
     # --------------------------------------------------------
-    # The paper allows solutions with fewer than Gamma
-    # selected items. Therefore take the best state over
+    # For every capacity d, select the best state over
     # s = 0 ... Gamma.
+    #
+    # The paper allows a solution to contain fewer than
+    # Gamma selected items.
     # --------------------------------------------------------
 
     best_profit = [
@@ -371,250 +388,19 @@ def _solve_rkp_values(items, capacity, gamma):
 
 
 # ============================================================
-# Robust DP with minimum cardinality
-# ============================================================
-
-def _solve_rkp_with_minimum_items(
-    items,
-    capacity,
-    gamma,
-    minimum_items
-):
-    """
-    Solve an RKP subproblem while requiring at least
-    minimum_items selected items.
-
-    This is used in the k* >= Gamma branch.
-
-    The requirement is necessary when reconstructing the
-    particular parent solution described by Lemma 3.
-
-    Returns:
-
-        best_profit[d]
-        first_half_count[d]
-    """
-
-    n = len(items)
-
-    gamma = min(
-        max(gamma, 0),
-        n
-    )
-
-    first_half_size = (n + 1) // 2
-
-    # --------------------------------------------------------
-    # State:
-    #
-    # dp[s][k][d]
-    #
-    # s = heavy items
-    # k = total selected items
-    # d = exact weight
-    #
-    # This extra cardinality information is only used during
-    # reconstruction of the recursive solution.
-    # --------------------------------------------------------
-
-    dp = [
-        [
-            [NEG_INF] * (capacity + 1)
-            for _ in range(n + 1)
-        ]
-        for _ in range(gamma + 1)
-    ]
-
-    first_count = [
-        [
-            [0] * (capacity + 1)
-            for _ in range(n + 1)
-        ]
-        for _ in range(gamma + 1)
-    ]
-
-    dp[0][0][0] = 0
-
-    for index, cargo in enumerate(items):
-
-        previous_dp = [
-            [
-                row[:]
-                for row in stage
-            ]
-            for stage in dp
-        ]
-
-        previous_first_count = [
-            [
-                row[:]
-                for row in stage
-            ]
-            for stage in first_count
-        ]
-
-        for s in range(gamma + 1):
-
-            for k in range(n + 1):
-
-                for d in range(capacity + 1):
-
-                    dp[s][k][d] = previous_dp[s][k][d]
-
-                    first_count[s][k][d] = (
-                        previous_first_count[s][k][d]
-                    )
-
-                    # ------------------------------------------------
-                    # Heavy transition.
-                    # ------------------------------------------------
-
-                    if s > 0 and k > 0:
-
-                        if cargo.max_weight <= d:
-
-                            previous = previous_dp[
-                                s - 1
-                            ][
-                                k - 1
-                            ][
-                                d - cargo.max_weight
-                            ]
-
-                            if previous != NEG_INF:
-
-                                candidate = (
-                                    previous
-                                    + cargo.profit
-                                )
-
-                                candidate_first_count = (
-                                    previous_first_count[
-                                        s - 1
-                                    ][
-                                        k - 1
-                                    ][
-                                        d - cargo.max_weight
-                                    ]
-                                    + (
-                                        1
-                                        if index < first_half_size
-                                        else 0
-                                    )
-                                )
-
-                                if (
-                                    candidate
-                                    > dp[s][k][d]
-                                ):
-
-                                    dp[s][k][d] = (
-                                        candidate
-                                    )
-
-                                    first_count[s][k][d] = (
-                                        candidate_first_count
-                                    )
-
-                    # ------------------------------------------------
-                    # Light transition.
-                    # ------------------------------------------------
-
-                    if s == gamma and k > 0:
-
-                        if cargo.weight <= d:
-
-                            previous = previous_dp[
-                                gamma
-                            ][
-                                k - 1
-                            ][
-                                d - cargo.weight
-                            ]
-
-                            if previous != NEG_INF:
-
-                                candidate = (
-                                    previous
-                                    + cargo.profit
-                                )
-
-                                candidate_first_count = (
-                                    previous_first_count[
-                                        gamma
-                                    ][
-                                        k - 1
-                                    ][
-                                        d - cargo.weight
-                                    ]
-                                    + (
-                                        1
-                                        if index < first_half_size
-                                        else 0
-                                    )
-                                )
-
-                                if (
-                                    candidate
-                                    > dp[s][k][d]
-                                ):
-
-                                    dp[s][k][d] = (
-                                        candidate
-                                    )
-
-                                    first_count[s][k][d] = (
-                                        candidate_first_count
-                                    )
-
-    # --------------------------------------------------------
-    # Find best state with at least minimum_items.
-    # --------------------------------------------------------
-
-    best_profit = [
-        NEG_INF
-        for _ in range(capacity + 1)
-    ]
-
-    best_first_count = [
-        0
-        for _ in range(capacity + 1)
-    ]
-
-    for d in range(capacity + 1):
-
-        for s in range(gamma + 1):
-
-            for k in range(
-                minimum_items,
-                n + 1
-            ):
-
-                value = dp[s][k][d]
-
-                if value > best_profit[d]:
-
-                    best_profit[d] = value
-
-                    best_first_count[d] = (
-                        first_count[s][k][d]
-                    )
-
-    return (
-        best_profit,
-        best_first_count,
-    )
-
-
-# ============================================================
 # Standard KP values
 # ============================================================
 
-def _solve_kp_values(items, capacity):
+def _solve_kp_values(
+    items,
+    capacity
+):
     """
-    Standard 0/1 Knapsack.
+    Solve the ordinary 0/1 Knapsack Problem.
 
-    Returns the best profit for every exact weight.
+    All selected items use their nominal weights.
+
+    Returns the best profit for every exact capacity.
     """
 
     dp = [
@@ -626,6 +412,7 @@ def _solve_kp_values(items, capacity):
 
     for cargo in items:
 
+        # Reverse iteration ensures 0/1 behavior.
         for d in range(
             capacity,
             cargo.weight - 1,
@@ -660,7 +447,7 @@ def _solve_kp_solution(
     capacity
 ):
     """
-    Re-run ordinary KP for one capacity and reconstruct
+    Solve ordinary KP for one exact capacity and reconstruct
     the selected item indices.
     """
 
@@ -673,14 +460,21 @@ def _solve_kp_solution(
 
     dp[0][0] = 0
 
-    for i in range(1, n + 1):
+    for i in range(
+        1,
+        n + 1
+    ):
 
         cargo = items[i - 1]
 
-        for d in range(capacity + 1):
+        for d in range(
+            capacity + 1
+        ):
 
             # Skip.
-            dp[i][d] = dp[i - 1][d]
+            dp[i][d] = (
+                dp[i - 1][d]
+            )
 
             # Take.
             if cargo.weight <= d:
@@ -704,7 +498,10 @@ def _solve_kp_solution(
 
     if dp[n][capacity] == NEG_INF:
 
-        return [], NEG_INF
+        return (
+            [],
+            NEG_INF
+        )
 
     selected = []
 
@@ -713,12 +510,19 @@ def _solve_kp_solution(
 
     while i > 0:
 
-        if dp[i][d] == dp[i - 1][d]:
+        # Item was not selected.
+        if (
+            dp[i][d]
+            == dp[i - 1][d]
+        ):
 
             i -= 1
             continue
 
-        selected.append(i - 1)
+        # Item was selected.
+        selected.append(
+            i - 1
+        )
 
         d -= items[i - 1].weight
         i -= 1
@@ -741,13 +545,13 @@ def _solve_exact_k_kp_values(
     k
 ):
     """
-    E-kKP from Section 3.
+    Solve E-kKP from Section 3.
 
     Exactly k items must be selected.
 
-    All items use their increased/max weights.
+    All selected items use their increased/max weights.
 
-    This corresponds to equation (6) in the paper.
+    This corresponds to the E-kKP subproblem in Figure 3.
     """
 
     n = len(items)
@@ -815,13 +619,20 @@ def _solve_exact_k_kp_solution(
     k
 ):
     """
-    Re-run E-kKP for a particular capacity and reconstruct
-    the selected items.
+    Solve E-kKP for one exact capacity and reconstruct
+    the selected item indices.
 
     Exactly k items are selected.
     """
 
     n = len(items)
+
+    if k < 0 or k > n:
+
+        return (
+            [],
+            NEG_INF
+        )
 
     dp = [
         [
@@ -833,13 +644,20 @@ def _solve_exact_k_kp_solution(
 
     dp[0][0][0] = 0
 
-    for i in range(1, n + 1):
+    for i in range(
+        1,
+        n + 1
+    ):
 
         cargo = items[i - 1]
 
-        for selected_count in range(k + 1):
+        for selected_count in range(
+            k + 1
+        ):
 
-            for d in range(capacity + 1):
+            for d in range(
+                capacity + 1
+            ):
 
                 # Skip.
                 dp[i][selected_count][d] = (
@@ -884,7 +702,10 @@ def _solve_exact_k_kp_solution(
 
     if value == NEG_INF:
 
-        return [], NEG_INF
+        return (
+            [],
+            NEG_INF
+        )
 
     selected = []
 
@@ -894,6 +715,7 @@ def _solve_exact_k_kp_solution(
 
     while i > 0:
 
+        # Item was not selected.
         if (
             dp[i][selected_count][d]
             == dp[i - 1][selected_count][d]
@@ -902,7 +724,10 @@ def _solve_exact_k_kp_solution(
             i -= 1
             continue
 
-        selected.append(i - 1)
+        # Item was selected.
+        selected.append(
+            i - 1
+        )
 
         d -= items[i - 1].max_weight
         selected_count -= 1
@@ -910,7 +735,10 @@ def _solve_exact_k_kp_solution(
 
     selected.reverse()
 
-    return selected, value
+    return (
+        selected,
+        value
+    )
 
 
 # ============================================================
@@ -921,14 +749,42 @@ def _recursive_reconstruct(
     items,
     capacity,
     gamma,
+    z_star,
+    k_star
 ):
     """
-    Figure 3 recursive reconstruction.
+    Reconstruct the solution according to Figure 3.
 
-    Returns:
+    Parameters
+    ----------
+    items:
+        Current item set N.
 
-        selected_indices
-        total_profit
+    capacity:
+        Current capacity c*.
+
+    gamma:
+        Current robustness budget Gamma.
+
+    z_star:
+        Optimal profit z* associated with this recursive
+        subproblem.
+
+    k_star:
+        Counter k* associated with z*.
+
+    Returns
+    -------
+    selected_indices:
+        Selected indices relative to the current item list.
+
+    total_profit:
+        Reconstructed optimal profit.
+
+    The important difference from the previous implementation
+    is that z_star and k_star are passed into the recursive
+    call instead of being recomputed. This follows the
+    recursive state passed by Figure 3.
     """
 
     n = len(items)
@@ -939,29 +795,63 @@ def _recursive_reconstruct(
 
     if n == 0:
 
-        return [], 0
+        return (
+            [],
+            0
+        )
 
     # --------------------------------------------------------
-    # Base case from Figure 3.
+    # Base case.
+    #
+    # Figure 3 terminates when |N| = 1.
     # --------------------------------------------------------
 
     if n == 1:
 
         cargo = items[0]
 
+        if z_star <= 0:
+
+            return (
+                [],
+                0
+            )
+
+        # For a single item:
+        #
+        # Gamma = 0:
+        #     nominal weight
+        #
+        # Gamma >= 1:
+        #     max weight
+        #
+        # Gamma has already been normalized to <= n.
         if gamma == 0:
 
-            required_weight = cargo.weight
+            required_weight = (
+                cargo.weight
+            )
 
         else:
 
-            required_weight = cargo.max_weight
+            required_weight = (
+                cargo.max_weight
+            )
 
-        if required_weight <= capacity:
+        if (
+            required_weight <= capacity
+            and cargo.profit == z_star
+        ):
 
-            return [0], cargo.profit
+            return (
+                [0],
+                cargo.profit
+            )
 
-        return [], 0
+        raise RuntimeError(
+            "Could not reconstruct the base-case "
+            "recursive solution."
+        )
 
     gamma = min(
         max(gamma, 0),
@@ -969,50 +859,15 @@ def _recursive_reconstruct(
     )
 
     # --------------------------------------------------------
-    # Step 1:
+    # Partition N into:
     #
-    # Solve_RKP(c, Gamma, N)
-    #
-    # Determine z*, c*, k*.
-    # --------------------------------------------------------
-
-    values, first_counts, total_counts = (
-        _solve_rkp_values(
-            items,
-            capacity,
-            gamma
-        )
-    )
-
-    z_star = 0
-    c_star = 0
-    k_star = 0
-
-    for d in range(capacity + 1):
-
-        value = values[d]
-
-        if value > z_star:
-
-            z_star = value
-            c_star = d
-            k_star = first_counts[d]
-
-    # No positive-profit solution.
-    if z_star <= 0:
-
-        return [], 0
-
-    # --------------------------------------------------------
-    # Step 2:
-    #
-    # Partition:
-    #
-    # N1 = first ceil(n/2)
+    # N1 = first ceil(n / 2) items
     # N2 = remaining items
     # --------------------------------------------------------
 
-    split = (n + 1) // 2
+    split = (
+        n + 1
+    ) // 2
 
     N1 = items[:split]
     N2 = items[split:]
@@ -1022,25 +877,37 @@ def _recursive_reconstruct(
     #
     # k* >= Gamma
     #
-    # RKP on N1
-    # KP on N2
+    # Figure 3:
+    #
+    # Solve RKP on N1 with Gamma
+    # Solve KP on N2
+    # Find c1 + c2 = c*
+    # Recurse on N1
     # --------------------------------------------------------
 
     if k_star >= gamma:
 
+        # ----------------------------------------------------
+        # Solve RKP on N1 for every capacity.
+        # ----------------------------------------------------
+
         (
             z1,
-            k1
-        ) = _solve_rkp_with_minimum_items(
+            first_counts_1,
+            _
+        ) = _solve_rkp_values(
             N1,
-            c_star,
-            gamma,
+            capacity,
             gamma
         )
 
+        # ----------------------------------------------------
+        # Solve ordinary KP on N2.
+        # ----------------------------------------------------
+
         z2 = _solve_kp_values(
             N2,
-            c_star
+            capacity
         )
 
         c1 = None
@@ -1055,11 +922,12 @@ def _recursive_reconstruct(
         # ----------------------------------------------------
 
         for candidate_c1 in range(
-            c_star + 1
+            capacity + 1
         ):
 
             candidate_c2 = (
-                c_star - candidate_c1
+                capacity
+                - candidate_c1
             )
 
             if (
@@ -1077,6 +945,7 @@ def _recursive_reconstruct(
 
                 c1 = candidate_c1
                 c2 = candidate_c2
+
                 break
 
         if c1 is None:
@@ -1087,45 +956,52 @@ def _recursive_reconstruct(
             )
 
         # ----------------------------------------------------
-        # Step 6:
+        # Figure 3:
         #
-        # Output KP solution for N2.
+        # k1* is the counter associated with z1(c1).
         # ----------------------------------------------------
 
-        selected_N2, _ = _solve_kp_solution(
-            N2,
-            c2
-        )
+        k1_star = first_counts_1[c1]
 
         # ----------------------------------------------------
-        # Step 7:
-        #
-        # Obtain k1* for recursive call.
-        #
-        # The counter is relative to N1's own first half.
+        # Recurse on N1 using the actual z1(c1) and k1*.
         # ----------------------------------------------------
 
-        _, child_first_counts, _ = (
-            _solve_rkp_values(
+        selected_N1, profit_N1 = (
+            _recursive_reconstruct(
                 N1,
                 c1,
-                gamma
+                gamma,
+                z1[c1],
+                k1_star
             )
         )
 
-        k1_star = child_first_counts[c1]
-
         # ----------------------------------------------------
-        # Step 8:
-        #
-        # Recurse on N1.
+        # Reconstruct KP solution for N2.
         # ----------------------------------------------------
 
-        selected_N1, _ = _recursive_reconstruct(
-            N1,
-            c1,
-            gamma
+        selected_N2, profit_N2 = (
+            _solve_kp_solution(
+                N2,
+                c2
+            )
         )
+
+        if (
+            profit_N1
+            + profit_N2
+            != z_star
+        ):
+
+            raise RuntimeError(
+                "Recursive reconstruction produced "
+                "an incorrect profit."
+            )
+
+        # ----------------------------------------------------
+        # Convert N2-local indices to current-N indices.
+        # ----------------------------------------------------
 
         selected = (
             selected_N1
@@ -1135,15 +1011,22 @@ def _recursive_reconstruct(
             ]
         )
 
-        return selected, z_star
+        return (
+            selected,
+            z_star
+        )
 
     # --------------------------------------------------------
     # Case 2:
     #
     # k* < Gamma
     #
-    # E-kKP on N1
+    # Figure 3:
+    #
+    # E-kKP on N1 with k*
     # RKP on N2 with Gamma-k*
+    # Find c1 + c2 = c*
+    # Recurse on N2
     # --------------------------------------------------------
 
     remaining_gamma = (
@@ -1151,30 +1034,26 @@ def _recursive_reconstruct(
     )
 
     # --------------------------------------------------------
-    # Step 10:
-    #
-    # E-kKP(N1, k*)
+    # Solve E-kKP on N1.
     # --------------------------------------------------------
 
     z1 = _solve_exact_k_kp_values(
         N1,
-        c_star,
+        capacity,
         k_star
     )
 
     # --------------------------------------------------------
-    # Step 11:
-    #
-    # RKP(N2, Gamma-k*)
+    # Solve RKP on N2.
     # --------------------------------------------------------
 
     (
         z2,
-        k2,
+        first_counts_2,
         _
     ) = _solve_rkp_values(
         N2,
-        c_star,
+        capacity,
         remaining_gamma
     )
 
@@ -1182,15 +1061,20 @@ def _recursive_reconstruct(
     c2 = None
 
     # --------------------------------------------------------
-    # Find capacity split.
+    # Find:
+    #
+    # c1 + c2 = c*
+    #
+    # z1(c1) + z2(c2) = z*
     # --------------------------------------------------------
 
     for candidate_c1 in range(
-        c_star + 1
+        capacity + 1
     ):
 
         candidate_c2 = (
-            c_star - candidate_c1
+            capacity
+            - candidate_c1
         )
 
         if (
@@ -1208,6 +1092,7 @@ def _recursive_reconstruct(
 
             c1 = candidate_c1
             c2 = candidate_c2
+
             break
 
     if c1 is None:
@@ -1218,12 +1103,10 @@ def _recursive_reconstruct(
         )
 
     # --------------------------------------------------------
-    # Step 13:
-    #
-    # Output E-kKP solution for N1.
+    # Reconstruct E-kKP solution for N1.
     # --------------------------------------------------------
 
-    selected_N1, _ = (
+    selected_N1, profit_N1 = (
         _solve_exact_k_kp_solution(
             N1,
             c1,
@@ -1232,34 +1115,46 @@ def _recursive_reconstruct(
     )
 
     # --------------------------------------------------------
-    # Step 14:
+    # Figure 3:
     #
-    # Get k2* for N2.
+    # k2* is the counter associated with z2(c2).
     # --------------------------------------------------------
 
-    (
-        _,
-        child_first_counts,
-        _
-    ) = _solve_rkp_values(
-        N2,
-        c2,
-        remaining_gamma
+    k2_star = first_counts_2[c2]
+
+    # --------------------------------------------------------
+    # Recurse on N2 using:
+    #
+    # z2(c2)
+    # k2*
+    # c2
+    # Gamma - k*
+    # --------------------------------------------------------
+
+    selected_N2, profit_N2 = (
+        _recursive_reconstruct(
+            N2,
+            c2,
+            remaining_gamma,
+            z2[c2],
+            k2_star
+        )
     )
 
-    k2_star = child_first_counts[c2]
+    if (
+        profit_N1
+        + profit_N2
+        != z_star
+    ):
+
+        raise RuntimeError(
+            "Recursive reconstruction produced "
+            "an incorrect profit."
+        )
 
     # --------------------------------------------------------
-    # Step 15:
-    #
-    # Recurse on N2.
+    # Convert N2-local indices to current-N indices.
     # --------------------------------------------------------
-
-    selected_N2, _ = _recursive_reconstruct(
-        N2,
-        c2,
-        remaining_gamma
-    )
 
     selected = (
         selected_N1
@@ -1269,7 +1164,10 @@ def _recursive_reconstruct(
         ]
     )
 
-    return selected, z_star
+    return (
+        selected,
+        z_star
+    )
 
 
 # ============================================================
@@ -1286,19 +1184,20 @@ def recursive_partitioning(
     partitioning solution-set reconstruction method from
     Section 3 of the paper.
 
-    Parameters:
+    Parameters
+    ----------
+    cargo_list:
+        List of Cargo objects.
 
-        cargo_list:
-            List of Cargo objects.
+    capacity:
+        Maximum robust capacity.
 
-        capacity:
-            Maximum robust capacity.
+    gamma:
+        Robustness budget Gamma.
 
-        gamma:
-            Maximum number of selected items that may
-            deviate to their upper weights.
-
-    Returns:
+    Returns
+    -------
+    dict
 
         {
             "selected_items": [...],
@@ -1322,7 +1221,7 @@ def recursive_partitioning(
         }
 
     # --------------------------------------------------------
-    # Invalid capacity.
+    # Invalid/non-positive capacity.
     # --------------------------------------------------------
 
     if capacity <= 0:
@@ -1346,7 +1245,8 @@ def recursive_partitioning(
     # --------------------------------------------------------
     # Sort by non-increasing uncertainty.
     #
-    # This is required by Lemma 1 of the paper.
+    # This ordering is required by the robust-knapsack
+    # formulation used by the paper.
     # --------------------------------------------------------
 
     items = sorted(
@@ -1356,14 +1256,71 @@ def recursive_partitioning(
     )
 
     # --------------------------------------------------------
-    # Recursive reconstruction.
+    # Initial Solve_RKP.
+    #
+    # This corresponds to the first step of Figure 3:
+    #
+    # Solve_RKP(c, Gamma, N)
+    #
+    # Determine:
+    #
+    # z* = optimal profit
+    # c* = capacity associated with z*
+    # k* = counter associated with z*
+    # --------------------------------------------------------
+
+    (
+        values,
+        first_counts,
+        _
+    ) = _solve_rkp_values(
+        items,
+        capacity,
+        gamma
+    )
+
+    z_star = NEG_INF
+    c_star = 0
+    k_star = 0
+
+    for d in range(
+        capacity + 1
+    ):
+
+        value = values[d]
+
+        if value > z_star:
+
+            z_star = value
+            c_star = d
+            k_star = first_counts[d]
+
+    # --------------------------------------------------------
+    # No feasible positive-profit solution.
+    # --------------------------------------------------------
+
+    if z_star == NEG_INF or z_star <= 0:
+
+        return {
+            "selected_items": [],
+            "total_profit": 0,
+            "nominal_weight": 0,
+            "robust_weight": 0,
+        }
+
+    # --------------------------------------------------------
+    # Recursive solution-set reconstruction.
+    #
+    # Pass z*, c*, and k* explicitly.
     # --------------------------------------------------------
 
     selected_indices, best_profit = (
         _recursive_reconstruct(
             items,
-            capacity,
-            gamma
+            c_star,
+            gamma,
+            z_star,
+            k_star
         )
     )
 
@@ -1419,12 +1376,28 @@ def recursive_partitioning(
         )
 
     # --------------------------------------------------------
+    # Final profit verification.
+    # --------------------------------------------------------
+
+    actual_profit = sum(
+        cargo.profit
+        for cargo in selected_items
+    )
+
+    if actual_profit != best_profit:
+
+        raise RuntimeError(
+            "Internal error: reconstructed solution "
+            "profit does not match the recursive DP result."
+        )
+
+    # --------------------------------------------------------
     # Final result.
     # --------------------------------------------------------
 
     return {
         "selected_items": selected_items,
-        "total_profit": best_profit,
+        "total_profit": actual_profit,
         "nominal_weight": nominal_weight,
         "robust_weight": robust_weight,
     }
